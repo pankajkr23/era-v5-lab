@@ -4,7 +4,7 @@
 
 Pack: sci-finepdfs (500 documents, every one labelled `eng_Latn`). Gold: the team file `gold/sci-finepdfs_gold.csv`, 40 documents from all 3 label sheets. Before the `build_gold.py` fix that comes with this sheet (a label sheet with a cell over 131,072 characters could not be read) it had 26; the "gold 26" column below is that older file.
 Rule form: `RULE_ID`, `CODE`, `ACTION`, `LANGS`, `ORIGIN`, `AUTHOR`; `medicine(doc) -> (action, text)`. The same form as the English and Code sheets that were on `g1-harm-test` until 29 Oct (`f96453c` took them out of the branch), so `tools/harm_test.py` runs it unchanged. `LANGS = {"eng_Latn"}`: the English sheet used `{"en", "eng"}`, which does not match this pack's label and would leave every Science document unchanged.
-Each author's code is copied unchanged from their `medicine.md` (jssunil PR #35, aneeshads PR #120); only the rule header, `_std` and `medicine(doc)` are added (and one word list for `DA-D1-001`, which its author did not give; that rule is now withdrawn). IDs: next free number after `rules/registry.json`, `medicine_code.md`, `medicine_en.md` and `reports/` (29 Oct). Withdrawn and recoded IDs stay in this sheet as `RULE_ID` lines in text blocks, so `medicine_extract.py` never gives them out again.
+Each author's code is copied unchanged from their `medicine.md` (jssunil PR #35, aneeshads PR #120), except list matching and two guards added to `DA-F1-004` so that it masks a list in one run and is idempotent; only the rule header, `_std` and `medicine(doc)` are added (and one word list for `DA-D1-001`, which its author did not give; that rule is now withdrawn). IDs: next free number after `rules/registry.json`, `medicine_code.md`, `medicine_en.md` and `reports/` (29 Oct). Withdrawn and recoded IDs stay in this sheet as `RULE_ID` lines in text blocks, so `medicine_extract.py` never gives them out again.
 Labelled rows: fix or drop rows of the 3 Science label sheets (jssunil, patilvijay23, aneeshads; 135 documents) that carry the rule's code; "fixes" = the rule changes or drops that document.
 Decision: guideline 2 (R7): a rule that fails is out; of the rest, the one that fixes the most labelled rows is kept, another only if it fixes different rows.
 
@@ -694,7 +694,7 @@ RULE_ID = "DA-D1-001"  # withdrawn 30 Oct 2026: ID reserved, do not reuse
 ## 15. `DA-F1-004` · F1 personal data (phone numbers) · fix · aneeshads
 
 1. **Disease:** F1 personal data (phone numbers). Labelled documents with F1 (fix or drop, 3 sheets): 77. Labelled documents this rule acts on: `031d526e862d6f22`, `053c80cc1a9b16bc`, `0798582b775b470f`.
-2. **Medicine:** Mask a phone or fax number (7 to 15 digits in groups) as `<PHONE>` when a phone word (tel, phone, fax, cell, mobile, call, ...) comes at most 25 characters before it. Source: aneeshads's `medicine.md`, medicine 2 (`cure_f1`).
+2. **Medicine:** Mask a phone or fax number (7 to 15 digits in groups) as `<PHONE>` when a phone word (tel, phone, fax, cell, mobile, call, ...) comes at most 25 characters before it. A list after one phone word (numbers joined by `,` `/` `;` `or` `and`) is masked in one run: `Phone: <PHONE>, <PHONE>, <PHONE>`. A number that follows other words (`Fax: <PHONE>. Funded 2019-2020`) is kept. Its own `<PHONE>` is never a phone word and the gap never runs across it, so a second run changes nothing (RULES §2). (List matching and these two guards were added to the author's pattern; the phone words, gap and `f1_is_phone` are the author's.) Source: aneeshads's `medicine.md`, medicine 2 (`cure_f1`).
 
 ```python
 RULE_ID = "DA-F1-004"
@@ -706,9 +706,13 @@ AUTHOR = "aneeshads"  # aneeshads's medicine.md, medicine 2
 
 import re
 
+F1_NUM = r"\+?\(?\d[\d().\s-]{5,22}\d"
 F1_PHONE = re.compile(
-    r"(?P<key>\b(?:tel|t[ée]l[ée]phone|telephone|phone|ph|fax|cell|mobile|call)\b[^\d\n]{0,25}?\n?)"
-    r"(?P<num>\+?\(?\d[\d().\s-]{5,22}\d)", re.I)
+    r"(?P<key>(?<!<)\b(?:tel|t[ée]l[ée]phone|telephone|phone|ph|fax|cell|mobile|call)\b[^\d\n<]{0,25}?\n?)"
+    rf"(?P<nums>{F1_NUM}(?:\s*(?:[,/;]|\bor\b|\band\b)\s*{F1_NUM})*)", re.I)
+# (?<!<): our own <PHONE> is not a phone word; no "<" in the gap: never across a <PHONE>. Both keep a second run a no-op.
+# nums: one number, then more numbers joined by , / ; or and (a list after one phone word).
+F1_ONE = re.compile(F1_NUM)
 
 def f1_is_phone(num):
     digits = re.sub(r"\D", "", num)
@@ -718,7 +722,8 @@ def f1_is_phone(num):
 
 def cure_f1(text):
     def mask(m):
-        return m.group("key") + "<PHONE>" if f1_is_phone(m.group("num")) else m.group(0)
+        nums = F1_ONE.sub(lambda n: "<PHONE>" if f1_is_phone(n.group(0)) else n.group(0), m.group("nums"))
+        return m.group("key") + nums
     return F1_PHONE.sub(mask, text)
 
 
