@@ -23,6 +23,9 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 import json
 
+# Long evidence cells exceed the csv default of 131072 characters, and the whole labels file then fails to parse.
+csv.field_size_limit(1 << 24)
+
 SUBMISSION_PATTERN = re.compile(
     r"^diagnosis/submissions/(?P<pack>[^/]+)/(?P<handle>[^/]+)/labels\.csv$",
     flags=re.IGNORECASE,

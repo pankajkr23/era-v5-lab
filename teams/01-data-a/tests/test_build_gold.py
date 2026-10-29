@@ -133,6 +133,15 @@ class BuilderTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'missing required columns'):
                 bg.build_gold([broken],Path(tmp))
 
+    def test_evidence_cell_over_csv_default_limit_is_read(self):
+        long_evidence = 'x' * 150_000  # over the csv module default of 131072 characters
+        docs=[sub('sci-test','alice','a,full,fix,C2,' + long_evidence + ',,','b,full,clean,,,,'),
+              sub('sci-test','bob','b,full,clean,,,,')]
+        with tempfile.TemporaryDirectory() as tmp:
+            report=bg.build_gold(docs,Path(tmp))
+            self.assertEqual(report[0]['skipped_label_files'],0)
+            self.assertEqual(report[0]['gold_docs'],1)
+
 
 if __name__ == '__main__':
     unittest.main()

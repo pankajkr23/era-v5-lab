@@ -177,5 +177,21 @@ class EndToEndCase(unittest.TestCase):
         self.assertIn("no active rules for code-go", err.getvalue())
 
 
+class LongCellCase(unittest.TestCase):
+    def test_evidence_cell_over_csv_default_limit_is_read(self):
+        import csv
+        old = csv.field_size_limit(131072)  # the csv module default, whatever ran before
+        self.addCleanup(csv.field_size_limit, old)
+        with tempfile.TemporaryDirectory() as tmp:
+            sheet = Path(tmp) / "alice" / "labels.csv"
+            sheet.parent.mkdir()
+            sheet.write_text("doc_id,read,verdict,diseases,evidence,hex,note\n"
+                             "a,full,fix,C2," + "x" * 150_000 + ",,\nb,full,clean,,,,\n", encoding="utf-8")
+            sick, rows, labelled = rule_report.read_labels(Path(tmp))
+        self.assertEqual(rows, {"alice": 2})
+        self.assertEqual(sick, {"C2": {"a"}})
+        self.assertEqual(labelled, {"a", "b"})
+
+
 if __name__ == "__main__":
     unittest.main()

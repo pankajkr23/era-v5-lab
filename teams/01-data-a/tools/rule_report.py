@@ -50,6 +50,7 @@ MIN_CASES = 5  # DISEASES.md: a medicine is needed for a disease found more than
 def read_labels(pack_dir: Path):
     """Return ({code: set of sick doc_ids}, {handle: number of label rows}, set of all labelled doc_ids)."""
     sick, rows, labelled = {}, {}, set()
+    csv.field_size_limit(1 << 24)  # long evidence cells exceed the csv default of 131072 characters
     for f in sorted(pack_dir.glob("*/labels.csv")):
         try:
             with open(f, newline="", encoding="utf-8") as fh:
