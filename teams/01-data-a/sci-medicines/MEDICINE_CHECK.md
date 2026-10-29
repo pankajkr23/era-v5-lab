@@ -7,7 +7,7 @@ Medicine sheets: `runs/fetch/diagnosis/submissions`. Gold files: `teams/01-data-
 
 | Gold file | Gold docs | Sheets | Rules | Rules that can run | Flags |
 |---|---|---|---|---|---|
-| sci-finepdfs_gold.csv | 40 | 2 | 14 | 7 | ONE ANNOTATOR, NO RULE, SMALL GOLD SET |
+| sci-finepdfs_gold.csv | 40 | 2 | 9 | 7 | ONE ANNOTATOR, NO RULE, SMALL GOLD SET |
 
 ## sci-finepdfs
 
@@ -16,7 +16,7 @@ Medicine sheets: `runs/fetch/diagnosis/submissions`. Gold files: `teams/01-data-
 | Annotator | Sheet | Rules | Can run |
 |---|---|---|---|
 | aneeshads | 8 medicines | 7 | 7 |
-| jssunil | no medicine sections | 7 | 7 |
+| jssunil | no medicine sections | 2 | 2 |
 
 ### Flags
 

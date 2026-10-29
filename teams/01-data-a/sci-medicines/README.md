@@ -15,7 +15,7 @@ One rule:
 python -I teams/01-data-a/tools/harm_test.py --pack <path>/sci-finepdfs.parquet --gold teams/01-data-a/gold/sci-finepdfs_gold.csv --rules teams/01-data-a/sci-medicines/medicine_sci.md --rule DA-F1-004
 ```
 
-Every rule in the sheet, alone and then all in order:
+Every rule of the proposed spec (the 9 KEEP rules), alone and then all in order:
 
 ```bash
 python -I teams/01-data-a/tools/harm_test.py --pack <path>/sci-finepdfs.parquet --gold teams/01-data-a/gold/sci-finepdfs_gold.csv --rules teams/01-data-a/sci-medicines/medicine_sci.md --rule all
@@ -27,11 +27,12 @@ Add `--debug` to list the gold doc_ids that a rule changes.
 
 | | |
 | --- | --- |
-| Rules | 14, all PASS on gold 40, alone and all in order |
+| Proposed spec | 9 KEEP rules (the only `python` blocks), all PASS on gold 40, alone and all in order |
+| DROP | `DA-A6-003`, `DA-B2-004`, `DA-C3-006`, `DA-C4-002`, `DA-F1-005`: kept as `text` blocks, so no tool runs them |
 | Withdrawn | `DA-C2-005`, `DA-D1-001`: fail the harm test; reasons in their sections of `medicine_sci.md` |
 | Recoded | `DA-C1-008` → `DA-C2-006`: it removes repeated lines, which is C2 |
 
-Withdrawn and old IDs stay in the sheet as `RULE_ID` lines in text blocks, so `medicine_extract.py` never gives them
+DROP, withdrawn and old IDs stay in the sheet as `RULE_ID` lines in text blocks, so `medicine_extract.py` never gives them
 to another rule.
 
 `MEDICINE_CHECK.md` flags "NO RULE: C2". That is how the tool counts, not a gap: it credits a rule only against its

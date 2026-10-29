@@ -27,7 +27,7 @@ Decision: guideline 2 (R7): a rule that fails is out; of the rest, the one that 
 | 15 | `DA-F1-004` | F1 personal data (phone numbers) | fix | aneeshads | 0.00% (0/26) PASS | 0.00% (0/40) PASS | 47/77 | 81/0 | KEEP |
 | 16 | `DA-F1-005` | F1 personal data (phone numbers) | fix | jssunil | 0.00% (0/26) PASS | 0.00% (0/40) PASS | 33/77 | 52/0 | DROP |
 
-**The 9 KEEP rules together, in sheet order:** gold 26: 0 changed, 0 dropped, PASS; gold 40: 0 changed, 0 dropped, PASS. **Withdrawn 30 Oct (PK):** `DA-C2-005` and `DA-D1-001`; the reasons are in their sections, and their IDs stay reserved. **The whole sheet (14 rules) in order** (team `harm_test.py` at `f96453c`, `--rule all`): gold 40: 0 changed, 0 dropped, 0.00% PASS; every rule alone PASS.
+**The proposed spec: the 9 KEEP rules**, the only `python` blocks in this sheet, so `harm_test.py --rule all` tests exactly them (team `harm_test.py` at `f96453c`, gold 40): every rule alone 0 changed, 0 dropped, PASS; ALL IN ORDER 0 changed, 0 dropped, PASS. **DROP (5):** `DA-A6-003`, `DA-B2-004`, `DA-C3-006`, `DA-C4-002`, `DA-F1-005`: kept as `text` blocks, not run. **Withdrawn 30 Oct (PK):** `DA-C2-005`, `DA-D1-001`. **Recoded:** `DA-C1-008` → `DA-C2-006`. Every DROP, withdrawn and old ID stays reserved.
 
 ## 1. `DA-D3-002` · D3 mixed language · drop · aneeshads
 
@@ -217,10 +217,12 @@ def medicine(doc):
 
 ## 4. `DA-A6-003` · A6 mixed script in a word · fix · jssunil
 
+**Not in the proposed spec (decision DROP, PK 30 Oct).** The code below is kept as a `text` block: `harm_test.py` and the other tools do not run it, and the ID stays reserved.
+
 1. **Disease:** A6 mixed script in a word. Labelled documents with A6 (fix or drop, 3 sheets): 10. Labelled documents this rule acts on: `cdc5973ec2161f44`.
 2. **Medicine:** In a word that mixes Latin and Cyrillic letters, turn the Cyrillic look-alike letters into Latin ones. Source: jssunil's `medicine.md`, medicine 6 (`fix_mixed_script_words`).
 
-```python
+```text
 RULE_ID = "DA-A6-003"
 CODE = "A6"
 ACTION = "fix"
@@ -311,10 +313,12 @@ def medicine(doc):
 
 ## 6. `DA-B2-004` · B2 HTML tags · fix · jssunil
 
+**Not in the proposed spec (decision DROP, PK 30 Oct).** The code below is kept as a `text` block: `harm_test.py` and the other tools do not run it, and the ID stays reserved.
+
 1. **Disease:** B2 HTML tags. Labelled documents with B2 (fix or drop, 3 sheets): 9. Labelled documents this rule acts on: `1cc10779aced9a7f`, `2b60daba400d7754`, `4656c1ed1d4393c4`.
 2. **Medicine:** `<sup>x</sup>` -> `^x`, `<sub>x</sub>` -> `_x`, `<br>` -> newline, and delete `<div> <p> <span> <table> <tr> <td> <th>` tags. Source: jssunil's `medicine.md`, medicine 5 (`clean_pdf_html_tags`).
 
-```python
+```text
 RULE_ID = "DA-B2-004"
 CODE = "B2"
 ACTION = "fix"
@@ -583,10 +587,12 @@ RULE_ID = "DA-C2-005"  # withdrawn 30 Oct 2026: ID reserved, do not reuse
 
 ## 12. `DA-C3-006` · C3 truncated document · fix · jssunil
 
+**Not in the proposed spec (decision DROP, PK 30 Oct).** The code below is kept as a `text` block: `harm_test.py` and the other tools do not run it, and the ID stays reserved.
+
 1. **Disease:** C3 truncated document. Labelled documents with C3 (fix or drop, 3 sheets): 13. Labelled documents this rule acts on: none.
 2. **Medicine:** If the last line is an unfinished Markdown table row (starts with `|`, has 2 or more `|`, does not end with `|`), delete that line. Source: jssunil's `medicine.md`, medicine 4 (`clean_truncated_tables`).
 
-```python
+```text
 RULE_ID = "DA-C3-006"
 CODE = "C3"
 ACTION = "fix"
@@ -626,10 +632,12 @@ def medicine(doc):
 
 ## 13. `DA-C4-002` · C4 two documents joined · fix · jssunil
 
+**Not in the proposed spec (decision DROP, PK 30 Oct).** The code below is kept as a `text` block: `harm_test.py` and the other tools do not run it, and the ID stays reserved.
+
 1. **Disease:** C4 two documents joined. Labelled documents with C4 (fix or drop, 3 sheets): 2. Labelled documents this rule acts on: `6acc7c94105bdebd`.
 2. **Medicine:** When `To the Editor:` starts a line twice or more, keep the text up to the end of the first letter. (Its author calls it a split; the code keeps only the first letter and deletes the rest.) Source: jssunil's `medicine.md`, medicine 8 (`split_joined_letters`).
 
-```python
+```text
 RULE_ID = "DA-C4-002"
 CODE = "C4"
 ACTION = "fix"
@@ -750,10 +758,12 @@ def medicine(doc):
 
 ## 16. `DA-F1-005` · F1 personal data (phone numbers) · fix · jssunil
 
+**Not in the proposed spec (decision DROP, PK 30 Oct).** The code below is kept as a `text` block: `harm_test.py` and the other tools do not run it, and the ID stays reserved.
+
 1. **Disease:** F1 personal data (phone numbers). Labelled documents with F1 (fix or drop, 3 sheets): 77. Labelled documents this rule acts on: `1b7c465205cdf42f`, `24d318c42b937b21`, `2b0f374583268f3c`.
 2. **Medicine:** Mask a 10-digit number written as `(123) 456-7890` style as `<PHONE>` when a contact word (Cell, Mobile, Phone, Tel, Fax, Office, ...) comes right before it. Source: jssunil's `medicine.md`, medicine 2 (`redact_phone_numbers`).
 
-```python
+```text
 RULE_ID = "DA-F1-005"
 CODE = "F1"
 ACTION = "fix"
