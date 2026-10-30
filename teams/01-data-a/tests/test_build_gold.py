@@ -127,11 +127,25 @@ class BuilderTests(unittest.TestCase):
         self.assertEqual(pr[0].handle,'Alice')
         self.assertEqual(bg.parse_labels(pr[0],[])['one'].clean,True)
 
-    def test_malformed_csv_header_fails_instead_of_silent_pass(self):
-        broken = bg.Submission('en-test','alice','bad-file','doc_id,read,verdict\na,full,clean\n',('',0))
+    def test_malformed_sheet_is_skipped_counted_and_warned(self):
+        broken = bg.Submission('en-test','carol','bad-file','doc_id,read,verdict\na,full,clean\n',('',0))
+        docs=[broken, sub('en-test','alice','a,full,clean,,,,'), sub('en-test','bob','a,full,clean,,,,')]
+        warnings=[]
         with tempfile.TemporaryDirectory() as tmp:
-            with self.assertRaisesRegex(ValueError,'missing required columns'):
-                bg.build_gold([broken],Path(tmp))
+            report=bg.build_gold(docs,Path(tmp),warnings=warnings)
+        self.assertEqual(report[0]['skipped_label_files'],1)
+        self.assertEqual(report[0]['label_files'],2)
+        self.assertEqual(report[0]['gold_docs'],1)
+        self.assertTrue(any('bad-file' in w and 'missing required columns' in w for w in warnings))
+
+    def test_evidence_cell_over_csv_default_limit_is_read(self):
+        long_evidence = 'x' * 150_000  # over the csv module default of 131072 characters
+        docs=[sub('sci-test','alice','a,full,fix,C2,' + long_evidence + ',,','b,full,clean,,,,'),
+              sub('sci-test','bob','b,full,clean,,,,')]
+        with tempfile.TemporaryDirectory() as tmp:
+            report=bg.build_gold(docs,Path(tmp))
+            self.assertEqual(report[0]['skipped_label_files'],0)
+            self.assertEqual(report[0]['gold_docs'],1)
 
 
 if __name__ == '__main__':
